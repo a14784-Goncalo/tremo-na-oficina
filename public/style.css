@@ -38,3 +38,9 @@ button{
   padding:10px 20px;
   cursor:pointer;
 }
+
+#output{
+    width:400px;
+    height:300px;
+    border:2px solid #fff;
+}
