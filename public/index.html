@@ -3,39 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TREMO</title>
+  <title>TREMO — Língua Gestual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>TREMO</h1>
-<p>Termo em Língua Gestual Portuguesa</p>
+  <header>
+    <h1>TREMO</h1>
+    <p class="subtitle">Termo em Língua Gestual Portuguesa</p>
+  </header>
 
-<div class="container">
+  <main class="container">
 
-  <div class="camera-box">
-    <video id="camera" autoplay playsinline></video>
+    <!-- CÂMARA + DETEÇÃO -->
+    <section class="camera-section">
+      <div class="camera-wrapper">
+        <video id="camera" autoplay playsinline muted></video>
+        <canvas id="overlay"></canvas>
+        <div class="camera-label">Câmara ao vivo</div>
+      </div>
+
+      <div class="gesture-panel">
+        <div class="detected-label">Letra detetada</div>
+        <div id="detectedLetter" class="detected-letter">—</div>
+        <div class="confidence-bar-wrap">
+          <div id="confidenceBar" class="confidence-bar"></div>
+        </div>
+        <button id="addLetterBtn" class="btn btn-add" disabled>
+          ＋ Adicionar letra
+        </button>
+        <div class="hint">
+          Aponta a mão para a câmara e mantém o gesto estável.<br>
+          A letra aparece quando detetada com confiança.
+        </div>
+      </div>
+    </section>
+
+    <!-- JOGO -->
+    <section class="game-section">
+
+      <div id="grid" class="grid"></div>
+
+      <div class="current-input-row">
+        <div id="currentTiles" class="current-tiles"></div>
+      </div>
+
+      <div class="controls">
+        <button id="backspaceBtn" class="btn btn-secondary">⌫ Apagar</button>
+        <button id="submitBtn" class="btn btn-primary" disabled>Enviar →</button>
+      </div>
+
+      <!-- Teclado manual (fallback) -->
+      <div class="keyboard" id="keyboard"></div>
+
+    </section>
+  </main>
+
+  <!-- Modal fim de jogo -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-box">
+      <div id="modalIcon" class="modal-icon"></div>
+      <h2 id="modalTitle"></h2>
+      <p id="modalMessage"></p>
+      <p class="modal-word">A palavra era: <strong id="modalWord"></strong></p>
+      <button id="playAgainBtn" class="btn btn-primary">Jogar novamente</button>
+    </div>
   </div>
 
-  <div class="game-box">
-    <div id="currentWord"></div>
+  <!-- MediaPipe -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 
-    <button id="clearBtn">
-      Limpar
-    </button>
-  </div>
-
-</div>
-
-<canvas id="output"></canvas>
-
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-
-<script src="app.js"></script>
-<script src="js/game.js"></script>
-<script src="js/camera.js"></script>
-
+  <script src="js/gestures.js"></script>
+  <script src="js/camera.js"></script>
+  <script src="js/game.js"></script>
 </body>
 </html>
