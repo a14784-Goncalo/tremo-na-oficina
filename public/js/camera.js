@@ -1,9 +1,10 @@
 /**
  * camera.js — Inicializa câmara, MediaPipe Hands, e chama o reconhecedor de gestos.
- * Expõe window.Camera para comunicar com game.js.
+ * NOTA: Renomeado para window.CameraModule para evitar conflito com
+ * a classe Camera do MediaPipe Camera Utils.
  */
 
-window.Camera = (function () {
+window.CameraModule = (function () {
 
   const videoEl   = document.getElementById('camera');
   const overlayEl = document.getElementById('overlay');
@@ -15,8 +16,7 @@ window.Camera = (function () {
 
   let currentLetter     = null;
   let currentConfidence = 0;
-  let isStable          = false;
-  let addCallback       = null;
+  let isStableFlag      = false;
 
   // Redimensionar o canvas ao tamanho do wrapper
   function resizeOverlay() {
@@ -33,8 +33,8 @@ window.Camera = (function () {
   });
 
   hands.setOptions({
-    maxNumHands:        1,
-    modelComplexity:    1,
+    maxNumHands:            1,
+    modelComplexity:        1,
     minDetectionConfidence: 0.7,
     minTrackingConfidence:  0.6,
   });
@@ -42,21 +42,18 @@ window.Camera = (function () {
   hands.onResults(onResults);
 
   function onResults(results) {
-    // Limpar canvas
     ctx.clearRect(0, 0, overlayEl.width, overlayEl.height);
 
-    let letter = null;
+    let letter     = null;
     let confidence = 0;
-    let stable = false;
+    let stable     = false;
 
     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
       const lm = results.multiHandLandmarks[0];
 
-      // Desenhar esqueleto da mão
       drawConnectors(ctx, lm, HAND_CONNECTIONS, { color: 'rgba(108,99,255,0.6)', lineWidth: 2 });
       drawLandmarks(ctx, lm, { color: '#a78bfa', lineWidth: 1, radius: 3 });
 
-      // Reconhecer gesto
       const result = GestureRecognizer.recognize(lm);
       letter     = result.letter;
       confidence = result.confidence;
@@ -67,7 +64,7 @@ window.Camera = (function () {
 
     currentLetter     = letter;
     currentConfidence = confidence;
-    isStable          = stable;
+    isStableFlag      = stable;
 
     updateUI(letter, confidence, stable);
   }
@@ -77,7 +74,7 @@ window.Camera = (function () {
       if (detectedLetterEl.textContent !== letter) {
         detectedLetterEl.textContent = letter;
         detectedLetterEl.classList.remove('pulse');
-        void detectedLetterEl.offsetWidth; // reflow
+        void detectedLetterEl.offsetWidth;
         detectedLetterEl.classList.add('pulse');
         setTimeout(() => detectedLetterEl.classList.remove('pulse'), 200);
       }
@@ -90,9 +87,8 @@ window.Camera = (function () {
     }
   }
 
-  // Botão adicionar letra
   addLetterBtn.addEventListener('click', () => {
-    if (currentLetter && isStable && window.Game?.canAddLetter()) {
+    if (currentLetter && isStableFlag && window.Game?.canAddLetter()) {
       window.Game.addLetter(currentLetter);
       GestureRecognizer.reset();
     }
@@ -117,21 +113,22 @@ window.Camera = (function () {
   }
 
   function startCapture() {
-    const mpCamera = new Camera(videoEl, {
+    // Usar Camera do MediaPipe (não conflita porque window.CameraModule é o nosso módulo)
+    const mpCam = new Camera(videoEl, {
       onFrame: async () => {
         await hands.send({ image: videoEl });
       },
       width: 640,
       height: 480,
     });
-    mpCamera.start();
+    mpCam.start();
   }
 
   init();
 
   return {
     getCurrentLetter: () => currentLetter,
-    isStable: () => isStable,
+    isStable: () => isStableFlag,
   };
 
 })();

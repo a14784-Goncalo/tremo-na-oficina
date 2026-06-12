@@ -1,15 +1,15 @@
 /**
- * game.js — Lógica completa do TREMO.
- * - Palavra aleatória de 5 letras
- * - 7 tentativas
+ * game.js — Lógica completa do TREMO NA OFICINA.
+ * - Palavra aleatória de 4 letras (conforme enunciado)
+ * - 6 tentativas
  * - Feedback: verde (sítio certo), amarelo (na palavra, sítio errado), cinzento (não está)
  * - Teclado visual com estado por letra
  */
 
 window.Game = (function () {
 
-  const MAX_ATTEMPTS = 7;
-  const WORD_LENGTH  = 5;
+  const MAX_ATTEMPTS = 6;
+  const WORD_LENGTH  = 4;  // ← 4 letras conforme enunciado
 
   const ALPHABET_ROWS = [
     ['Q','W','E','R','T','Y','U','I','O','P'],
@@ -30,27 +30,29 @@ window.Game = (function () {
   const keyboardEl     = document.getElementById('keyboard');
 
   let targetWord   = '';
-  let attempts     = [];   // array de strings (tentativas submetidas)
+  let attempts     = [];
   let currentInput = '';
   let gameOver     = false;
   let wordList     = [];
-  let keyStates    = {};   // { letter: 'correct'|'present'|'absent' }
+  let keyStates    = {};
 
   // ---- Carregar palavras ----
   async function loadWords() {
     try {
-      const res  = await fetch('words/palavras.json');
-      wordList   = await res.json();
+      const res = await fetch('words/palavras.json');
+      const all = await res.json();
+      // Filtrar apenas palavras de exatamente 4 letras
+      wordList = all
+        .map(w => w.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''))
+        .filter(w => w.length === WORD_LENGTH && /^[A-Z]+$/.test(w));
     } catch (e) {
-      // fallback mínimo
-      wordList = ['GESTO','AMIGO','LIVRO','TREMO','CAMPO','PORTA','SALTO'];
+      wordList = ['GATO','BOLA','MESA','CASA','AMOR','LAGO','MEDO','FOGO'];
     }
     newGame();
   }
 
   function pickWord() {
-    const w = wordList[Math.floor(Math.random() * wordList.length)];
-    return w.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    return wordList[Math.floor(Math.random() * wordList.length)];
   }
 
   // ---- Novo jogo ----
@@ -67,13 +69,12 @@ window.Game = (function () {
     updateButtons();
     modal.classList.add('hidden');
 
-    console.log('[TREMO] Palavra:', targetWord); // para debug
+    console.log('[TREMO] Palavra:', targetWord); // debug
   }
 
   // ---- Grelha de tentativas anteriores ----
   function renderGrid() {
     gridEl.innerHTML = '';
-    // Apenas as tentativas já submetidas
     for (let i = 0; i < attempts.length; i++) {
       const row = document.createElement('div');
       row.className = 'grid-row';
@@ -82,7 +83,6 @@ window.Game = (function () {
         const tile = document.createElement('div');
         tile.className = `tile ${result[j]}`;
         tile.textContent = attempts[i][j];
-        // animação flip com delay por coluna
         tile.style.animationDelay = `${j * 80}ms`;
         tile.classList.add('flip');
         row.appendChild(tile);
@@ -128,7 +128,6 @@ window.Game = (function () {
     for (let i = 0; i < WORD_LENGTH; i++) {
       const l = guess[i];
       const prev = keyStates[l];
-      // Prioridade: correct > present > absent
       if (result[i] === 'correct') {
         keyStates[l] = 'correct';
       } else if (result[i] === 'present' && prev !== 'correct') {
@@ -218,7 +217,7 @@ window.Game = (function () {
 
   // ---- Botões ----
   function updateButtons() {
-    submitBtn.disabled   = currentInput.length < WORD_LENGTH || gameOver;
+    submitBtn.disabled    = currentInput.length < WORD_LENGTH || gameOver;
     backspaceBtn.disabled = currentInput.length === 0 || gameOver;
   }
 
@@ -243,12 +242,9 @@ window.Game = (function () {
 
   // ---- Eventos ----
   submitBtn.addEventListener('click', submitGuess);
-
   backspaceBtn.addEventListener('click', backspace);
-
   playAgainBtn.addEventListener('click', newGame);
 
-  // Teclado físico
   document.addEventListener('keydown', e => {
     if (gameOver) return;
     if (e.key === 'Enter') { submitGuess(); return; }

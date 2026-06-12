@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TREMO — Língua Gestual</title>
+  <title>TREMO NA OFICINA — Língua Gestual</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -12,8 +12,8 @@
 <body>
 
   <header>
-    <h1>TREMO</h1>
-    <p class="subtitle">Termo em Língua Gestual Portuguesa</p>
+    <h1>TREMO NA OFICINA</h1>
+    <p class="subtitle">Adivinhas palavras de 4 letras com Língua Gestual Portuguesa</p>
   </header>
 
   <main class="container">
@@ -37,7 +37,8 @@
         </button>
         <div class="hint">
           Aponta a mão para a câmara e mantém o gesto estável.<br>
-          A letra aparece quando detetada com confiança.
+          A letra aparece quando detetada com confiança.<br>
+          <strong>Palavra: 4 letras · 6 tentativas</strong>
         </div>
       </div>
     </section>
@@ -73,11 +74,12 @@
     </div>
   </div>
 
-  <!-- MediaPipe -->
+  <!-- MediaPipe (ordem importa: camera_utils ANTES do nosso módulo) -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 
+  <!-- Os nossos módulos -->
   <script src="js/gestures.js"></script>
   <script src="js/camera.js"></script>
   <script src="js/game.js"></script>
